@@ -21,7 +21,8 @@ Key: eccentricity determines the orbit's shape:
 - epsilon > 1     -- E > 0 -- hyperbola
 
 """
-from graph_orbits import graph_orbits
+from graph_orbits import OrbitGrapher
 
 if __name__ == '__main__':
-    graph_orbits()
+    parabola = OrbitGrapher(epsilon=1) # parabola
+    parabola.graph_orbit()
