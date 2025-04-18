@@ -42,7 +42,7 @@ MU = (M1 * M2) / (M1 + M2)
 
 """CONSTANTS that should be CHANGED for experimentation"""
 L = 10**24 # angular momentum
-EPSILON = 1.1 # circle
+EPSILON = 0.9 # circle
 C = L**2 / (GAMMA * MU)
 
 """INITIATE PYGAME
@@ -114,15 +114,21 @@ def graph_orbits(num_points=3000, percent=10):
 
     # get max in the list
     # find dividing factor that reduced it to the width of the screen (divided by 2)
+
+    """
     x_max = max([abs(elem) for elem in x_point_list])
     y_max = max([abs(elem) for elem in y_point_list])
     x_factor = x_max / (WIDTH / 2)
     y_factor = y_max / (HEIGHT / 2)
+    """
+
+    r_max = max([abs(elem) for elem in r_list])
+    factor = r_max / (WIDTH / 2)
 
     # graph each point
     for i in range(len(x_point_list)):
-        current_x_coord = int((x_point_list[i] / x_factor) + WIDTH / 2)
-        current_y_coord = int((y_point_list[i] / y_factor) + HEIGHT / 2)
+        current_x_coord = int((x_point_list[i] / factor) + WIDTH / 2)
+        current_y_coord = int((y_point_list[i] / factor) + HEIGHT / 2)
         # plot point
         surface.set_at((current_x_coord, current_y_coord), WHITE)
 
