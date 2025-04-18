@@ -42,7 +42,7 @@ MU = (M1 * M2) / (M1 + M2)
 
 """CONSTANTS that should be CHANGED for experimentation"""
 L = 10**24 # angular momentum
-EPSILON = 1.1 # hyperbola
+EPSILON = 1.5 # hyperbola
 C = L**2 / (GAMMA * MU)
 
 """INITIATE PYGAME
@@ -63,7 +63,7 @@ def r_orbit(phi):
 def energy():
     return GAMMA ** 2 * MU * (EPSILON ** 2 - 1) / 2 * L ** 2
 
-def graph_orbits(num_points=3000, percent=10):
+def graph_orbits(num_points=2000, percent=0.1):
     # energy and orbit information
     print(f"Energy: {energy()}")
     print(f"Orbit for 0 phi: {r_orbit(0)}")
@@ -86,11 +86,15 @@ def graph_orbits(num_points=3000, percent=10):
         r_list.append([current_r, current_phi])
 
     # if hyperbola or parabola (EPSILON = 1 or "..." > 1), shave off (default 10%) the longer r values
-    if EPSILON == 1 or EPSILON > 1:
-        percent_index = int(len(r_list) - len(r_list) / percent)
-        """NEED TO: sort by absolute value, but don't actually change signs"""
+    start_percent_index = int(len(r_list) * percent)
+    end_percent_index = int(len(r_list) - len(r_list) * percent)
+
+    if EPSILON == 1:
         r_list.sort(key=lambda l:l[0]) # sort by the first value (r)
-        r_list = r_list[:percent_index]
+        r_list = r_list[:end_percent_index]
+    elif EPSILON > 1:
+        r_list.sort(key=lambda l:abs(l[0])) # sort by the abs. value of first value (r)
+        r_list = r_list[start_percent_index:end_percent_index]
 
     for i in range(len(r_list)):
         current_r = r_list[i][0]
