@@ -42,7 +42,7 @@ MU = (M1 * M2) / (M1 + M2)
 
 """CONSTANTS that should be CHANGED for experimentation"""
 L = 10**24 # angular momentum
-EPSILON = 0 # circle
+EPSILON = 1.1 # circle
 C = L**2 / (GAMMA * MU)
 
 """INITIATE PYGAME
@@ -63,7 +63,7 @@ def r_orbit(phi):
 def energy():
     return GAMMA ** 2 * MU * (EPSILON ** 2 - 1) / 2 * L ** 2
 
-def graph_orbits(num_points=3000):
+def graph_orbits(num_points=3000, percent=10):
     # energy and orbit information
     print(f"Energy: {energy()}")
     print(f"Orbit for 0 phi: {r_orbit(0)}")
@@ -72,8 +72,10 @@ def graph_orbits(num_points=3000):
     # graph orbit
     # - for (default=360) equally spaced points, calculate r and add to 2D list
     # - graph each point in each array (x and y)
+    r_list = []
     x_point_list = []
     y_point_list = []
+
     current_phi = 0
 
     # get the points and add to array
@@ -81,7 +83,23 @@ def graph_orbits(num_points=3000):
         radian_increment = 2*np.pi / num_points
         current_phi += radian_increment
         current_r = r_orbit(current_phi)
+        r_list.append(current_r)
 
+    # if hyperbola or parabola (EPSILON = 1 or "..." > 1), shave off (default 10%) the longer r values
+    if EPSILON == 1 or EPSILON > 1:
+        percent_index = int(len(r_list) - len(r_list) / percent)
+        """
+        # sort by absolute value, but don't actually change signs
+        r_list.sort(key=abs)
+        # r_list = r_list[:percent_index]
+        """
+
+    current_phi = 0 # reset to zero
+
+    for i in range(len(r_list)):
+        radian_increment = 2 * np.pi / num_points
+        current_phi += radian_increment
+        current_r = r_list[i]
         # recall:
         # - x = r * np.cos(phi)
         # - y = r * np.sin(phi)
