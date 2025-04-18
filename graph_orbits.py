@@ -94,7 +94,7 @@ def graph_orbits(num_points=2000, percent=0.1):
         r_list = r_list[:end_percent_index]
     elif EPSILON > 1:
         r_list.sort(key=lambda l:abs(l[0])) # sort by the abs. value of first value (r)
-        r_list = r_list[start_percent_index:end_percent_index]
+        r_list = r_list[:end_percent_index]
 
     for i in range(len(r_list)):
         current_r = r_list[i][0]
@@ -113,14 +113,6 @@ def graph_orbits(num_points=2000, percent=0.1):
 
     # get max in the list
     # find dividing factor that reduced it to the width of the screen (divided by 2)
-
-    """
-    x_max = max([abs(elem) for elem in x_point_list])
-    y_max = max([abs(elem) for elem in y_point_list])
-    x_factor = x_max / (WIDTH / 2)
-    y_factor = y_max / (HEIGHT / 2)
-    """
-
     r_max = max([abs(elem[0]) for elem in r_list])
     factor = r_max / (WIDTH / 2)
 
