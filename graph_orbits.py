@@ -27,14 +27,21 @@ Key: eccentricity determines the orbit's shape:
 - epsilon > 1     -- E > 0 -- hyperbola
 
 """
-import sys
-
 import numpy as np
-import pygame_main as pm
+import pygame
+from pygame.locals import *
+
+def game_loop():
+    parabola = OrbitGrapher(epsilon=1.5)  # parabola
+    parabola.graph_orbit()
+    while True:
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
 
 class OrbitGrapher:
-
-    def __init__(self, epsilon=0, l=10**24, m1=5.97219*10**24, m2=10**13):
+    def __init__(self, epsilon=0.0, l=10**24, m1=5.97219*10**24, m2=10**13):
         self.G = 6.67430 * 10 ** -11  # gravitational const.
         self.M1 = m1  # mass of Earth
         self.M2 = m2  # mass of a typical comet
@@ -44,6 +51,22 @@ class OrbitGrapher:
         self.EPSILON = epsilon # eccentricity
         self.C = self.L**2 / (self.GAMMA * self.MU)
 
+        """PYGAME CONSTANTS
+        (https://inventwithpython.com/pygameHelloWorld.py)
+        """
+        self.surface = None
+        self.WIDTH = 800
+        self.HEIGHT = 800
+        self.BLACK = (0, 0, 0)
+        self.WHITE = (255, 255, 255)
+
+        self.init_pygame()
+
+    def init_pygame(self):
+        pygame.init()
+        self.surface = pygame.display.set_mode([self.WIDTH, self.HEIGHT])
+        pygame.display.set_caption("Orbit Graph")
+
     def r_orbit(self, phi):
         return self.C/(1 + self.EPSILON * np.cos(phi))
 
@@ -51,11 +74,6 @@ class OrbitGrapher:
         return self.GAMMA ** 2 * self.MU * (self.EPSILON ** 2 - 1) / 2 * self.L ** 2
 
     def graph_orbit(self, num_points=300, percent=0.1):
-        # energy and orbit information
-        print(f"Energy: {self.energy()}")
-        print(f"Orbit for 0 phi: {self.r_orbit(0)}")
-        print(f"Orbit for 3PI/2 phi: {self.r_orbit(3 * np.pi / 2)}")
-
         # graph orbit
         # - for (default=360) equally spaced points, calculate r and add to 2D list
         # - graph each point in each array (x and y)
@@ -101,15 +119,14 @@ class OrbitGrapher:
         # get max in the list
         # find dividing factor that reduced it to the width of the screen (divided by 2)
         r_max = max([abs(elem[0]) for elem in r_list])
-        factor = r_max / (pm.WIDTH / 2)
+        factor = r_max / (self.WIDTH / 2)
 
         # graph each point
         for i in range(len(x_point_list)):
-            current_x_coord = int((x_point_list[i] / factor) + pm.WIDTH / 2)
-            current_y_coord = int((y_point_list[i] / factor) + pm.HEIGHT / 2)
+            current_x_coord = int((x_point_list[i] / factor) + self.WIDTH / 2)
+            current_y_coord = int((y_point_list[i] / factor) + self.HEIGHT / 2)
             # plot point
-            pm.surface.set_at((current_x_coord, current_y_coord), pm.WHITE)
+            self.surface.set_at((current_x_coord, current_y_coord), self.WHITE)
 
         # draw the window and run the game loop
-        pm.pygame.display.update()
-        pm.game_loop()
+        # pygame.display.update()

@@ -21,8 +21,14 @@ Key: eccentricity determines the orbit's shape:
 - epsilon > 1     -- E > 0 -- hyperbola
 
 """
-from graph_orbits import OrbitGrapher
+from graph_orbits import game_loop
 
 if __name__ == '__main__':
-    parabola = OrbitGrapher(epsilon=1) # parabola
-    parabola.graph_orbit()
+    game_loop()
+
+"""NOTES: 
+- fix flickering and make it possible to draw multiple on the same window
+- draw earth at foci (left for hyperbola or Earth) or center (for circle)
+- create satellite that starts at phi = 0
+- animate satellite over time
+"""
