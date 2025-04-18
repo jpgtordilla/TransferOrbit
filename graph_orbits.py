@@ -42,7 +42,7 @@ MU = (M1 * M2) / (M1 + M2)
 
 """CONSTANTS that should be CHANGED for experimentation"""
 L = 10**24 # angular momentum
-EPSILON = 0.9 # circle
+EPSILON = 1.1 # hyperbola
 C = L**2 / (GAMMA * MU)
 
 """INITIATE PYGAME
@@ -72,9 +72,9 @@ def graph_orbits(num_points=3000, percent=10):
     # graph orbit
     # - for (default=360) equally spaced points, calculate r and add to 2D list
     # - graph each point in each array (x and y)
-    r_list = []
-    x_point_list = []
-    y_point_list = []
+    r_list = [] # 2D array
+    x_point_list = [] # 1D array
+    y_point_list = [] # 1D array
 
     current_phi = 0
 
@@ -83,23 +83,18 @@ def graph_orbits(num_points=3000, percent=10):
         radian_increment = 2*np.pi / num_points
         current_phi += radian_increment
         current_r = r_orbit(current_phi)
-        r_list.append(current_r)
+        r_list.append([current_r, current_phi])
 
     # if hyperbola or parabola (EPSILON = 1 or "..." > 1), shave off (default 10%) the longer r values
     if EPSILON == 1 or EPSILON > 1:
         percent_index = int(len(r_list) - len(r_list) / percent)
-        """
-        # sort by absolute value, but don't actually change signs
-        r_list.sort(key=abs)
-        # r_list = r_list[:percent_index]
-        """
-
-    current_phi = 0 # reset to zero
+        """NEED TO: sort by absolute value, but don't actually change signs"""
+        r_list.sort(key=lambda l:l[0]) # sort by the first value (r)
+        r_list = r_list[:percent_index]
 
     for i in range(len(r_list)):
-        radian_increment = 2 * np.pi / num_points
-        current_phi += radian_increment
-        current_r = r_list[i]
+        current_r = r_list[i][0]
+        current_phi = r_list[i][1]
         # recall:
         # - x = r * np.cos(phi)
         # - y = r * np.sin(phi)
@@ -122,7 +117,7 @@ def graph_orbits(num_points=3000, percent=10):
     y_factor = y_max / (HEIGHT / 2)
     """
 
-    r_max = max([abs(elem) for elem in r_list])
+    r_max = max([abs(elem[0]) for elem in r_list])
     factor = r_max / (WIDTH / 2)
 
     # graph each point
@@ -140,9 +135,3 @@ def graph_orbits(num_points=3000, percent=10):
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-
-"""
-NOTES: 
-- Plots too many extreme points for parabolas and hyperbolas
-- flickering effect due to loop condition
-"""
