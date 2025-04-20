@@ -42,33 +42,8 @@ pygame.init()
 surface = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption("Orbit Graph")
 
-"""NOTES: 
-
-- Issue: graphing
-- circles are all scaled to be the same size
-- this has to do with the screen width scaling
-
-- create helper method to: 
-    - get all the orbits and their parameters
-    - calculate their radii
-    - scale the circles so that the largest circle takes up a reasonable amount of screen
-    - create a factor so that the other orbits are relatively sized
-"""
-
-def game_loop():
-    hyperbola = OrbitGrapher(epsilon=1.5)  # hyperbola
-    hyperbola.graph_orbit()
-    hyperbola_steep = OrbitGrapher(epsilon=1.9)  # hyperbola, steeper
-    hyperbola_steep.graph_orbit()
-    circle = OrbitGrapher(epsilon=0, l=10**24)  # circle
-    circle.graph_orbit()
-    while True:
-        pygame.display.update()
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                pygame.quit()
-
 class OrbitGrapher:
+    """Graphs conic section orbits based on general Kepler Orbit Equation"""
     def __init__(self, epsilon=0.0, l=10**24, m1=5.97219*10**24, m2=10**13):
         self.G = 6.67430 * 10 ** -11  # gravitational const.
         self.M1 = m1  # mass of Earth
@@ -138,3 +113,48 @@ class OrbitGrapher:
             current_y_coord = int((y_point_list[i] / factor) + HEIGHT / 2)
             # plot point
             surface.set_at((current_x_coord, current_y_coord), WHITE)
+
+"""HELPER FUNCTIONS FOR SCALING ORBITS TO FIT THE SCREEN"""
+
+def get_key_with_max_value(orbit_dict):
+    """Gets the key with the max value in a dictionary"""
+    max_key = max(orbit_dict, key=orbit_dict.get()) # same as passing in orbit_dict.keys()
+    return max_key
+
+def get_orbit_with_max_radius(orbit_objs: list[OrbitGrapher]):
+    """Returns the orbit that has the max radius given a list of OrbitGrapher objects"""
+    orbit_dict = {}
+    for orbit in orbit_objs:
+        orbit_dict[orbit] = orbit.r_orbit(0) # radius at 0 phi
+    return get_key_with_max_value(orbit_dict)
+
+"""MAIN LOOP FOR DRAWING ORBITS AND UPDATING"""
+
+def game_loop():
+    hyperbola = OrbitGrapher(epsilon=1.5)  # hyperbola
+    hyperbola.graph_orbit()
+    hyperbola_steep = OrbitGrapher(epsilon=1.9)  # hyperbola, steeper
+    hyperbola_steep.graph_orbit()
+    circle = OrbitGrapher(epsilon=0, l=10**24)  # circle
+    circle.graph_orbit()
+
+    while True:
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+
+"""NOTES: 
+- Issue: graphing
+- circles are all scaled to be the same size
+- this has to do with the screen width scaling
+
+- create helper method to: 
+    - get all the orbits and their parameters
+    - calculate their radii
+    - scale the circles so that the largest circle takes up a reasonable amount of screen
+    - create a factor so that the other orbits are relatively sized
+
+- this method should run before pygame.display.update
+- somehow, the scaling portion of OrbitGrapher should be modified to take this into account? (not sure how) 
+"""
