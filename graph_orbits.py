@@ -31,9 +31,37 @@ import numpy as np
 import pygame
 from pygame.locals import *
 
+"""PYGAME CONSTANTS: (https://inventwithpython.com/pygameHelloWorld.py)"""
+surface = None
+WIDTH = 800
+HEIGHT = 800
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+
+pygame.init()
+surface = pygame.display.set_mode([WIDTH, HEIGHT])
+pygame.display.set_caption("Orbit Graph")
+
+"""NOTES: 
+
+- Issue: graphing
+- circles are all scaled to be the same size
+- this has to do with the screen width scaling
+
+- create helper method to: 
+    - get all the orbits and their parameters
+    - calculate their radii
+    - scale the circles so that the largest circle takes up a reasonable amount of screen
+    - create a factor so that the other orbits are relatively sized
+"""
+
 def game_loop():
-    parabola = OrbitGrapher(epsilon=1.5)  # parabola
-    parabola.graph_orbit()
+    hyperbola = OrbitGrapher(epsilon=1.5)  # hyperbola
+    hyperbola.graph_orbit()
+    hyperbola_steep = OrbitGrapher(epsilon=1.9)  # hyperbola, steeper
+    hyperbola_steep.graph_orbit()
+    circle = OrbitGrapher(epsilon=0, l=10**24)  # circle
+    circle.graph_orbit()
     while True:
         pygame.display.update()
         for event in pygame.event.get():
@@ -50,22 +78,6 @@ class OrbitGrapher:
         self.L = l # angular momentum
         self.EPSILON = epsilon # eccentricity
         self.C = self.L**2 / (self.GAMMA * self.MU)
-
-        """PYGAME CONSTANTS
-        (https://inventwithpython.com/pygameHelloWorld.py)
-        """
-        self.surface = None
-        self.WIDTH = 800
-        self.HEIGHT = 800
-        self.BLACK = (0, 0, 0)
-        self.WHITE = (255, 255, 255)
-
-        self.init_pygame()
-
-    def init_pygame(self):
-        pygame.init()
-        self.surface = pygame.display.set_mode([self.WIDTH, self.HEIGHT])
-        pygame.display.set_caption("Orbit Graph")
 
     def r_orbit(self, phi):
         return self.C/(1 + self.EPSILON * np.cos(phi))
@@ -91,7 +103,6 @@ class OrbitGrapher:
             r_list.append([current_r, current_phi])
 
         # if hyperbola or parabola (EPSILON = 1 or "..." > 1), shave off (default 10%) the longer r values
-        start_percent_index = int(len(r_list) * percent)
         end_percent_index = int(len(r_list) - len(r_list) * percent)
 
         if self.EPSILON == 1:
@@ -119,14 +130,11 @@ class OrbitGrapher:
         # get max in the list
         # find dividing factor that reduced it to the width of the screen (divided by 2)
         r_max = max([abs(elem[0]) for elem in r_list])
-        factor = r_max / (self.WIDTH / 2)
+        factor = r_max / (WIDTH / 2)
 
         # graph each point
         for i in range(len(x_point_list)):
-            current_x_coord = int((x_point_list[i] / factor) + self.WIDTH / 2)
-            current_y_coord = int((y_point_list[i] / factor) + self.HEIGHT / 2)
+            current_x_coord = int((x_point_list[i] / factor) + WIDTH / 2)
+            current_y_coord = int((y_point_list[i] / factor) + HEIGHT / 2)
             # plot point
-            self.surface.set_at((current_x_coord, current_y_coord), self.WHITE)
-
-        # draw the window and run the game loop
-        # pygame.display.update()
+            surface.set_at((current_x_coord, current_y_coord), WHITE)
