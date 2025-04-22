@@ -42,7 +42,7 @@ pygame.init()
 surface = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption("Orbit Graph")
 
-class OrbitGrapher:
+class Orbit:
     """Graphs conic section orbits based on general Kepler Orbit Equation"""
     def __init__(self, epsilon=0.0, l=10**24, m1=5.97219*10**24, m2=10**13):
         self.G = 6.67430 * 10 ** -11  # gravitational const.
@@ -60,13 +60,13 @@ class OrbitGrapher:
     def energy(self):
         return self.GAMMA ** 2 * self.MU * (self.EPSILON ** 2 - 1) / 2 * self.L ** 2
 
-    def graph_orbit(self, num_points=300, percent=0.1):
+    def get_orbit(self, num_points=300, percent=0.1) -> list[list[float]]:
+        """Returns a list of (x, y) pairs for a given orbit"""
         # graph orbit
         # - for (default=360) equally spaced points, calculate r and add to 2D list
         # - graph each point in each array (x and y)
         r_list = [] # 2D array
-        x_point_list = [] # 1D array
-        y_point_list = [] # 1D array
+        xy_point_list = [] # 2D array
 
         current_phi = 0
 
@@ -99,20 +99,39 @@ class OrbitGrapher:
                 continue
             current_y = int(current_r * np.sin(current_phi))
 
-            x_point_list.append(current_x)
-            y_point_list.append(current_y)
+            xy_point_list.append([current_x, current_y])
 
-        # get max in the list
-        # find dividing factor that reduced it to the width of the screen (divided by 2)
-        r_max = max([abs(elem[0]) for elem in r_list])
-        factor = r_max / (WIDTH / 2)
+        return xy_point_list
 
-        # graph each point
-        for i in range(len(x_point_list)):
-            current_x_coord = int((x_point_list[i] / factor) + WIDTH / 2)
-            current_y_coord = int((y_point_list[i] / factor) + HEIGHT / 2)
-            # plot point
-            surface.set_at((current_x_coord, current_y_coord), WHITE)
+def graph_orbits(orbit_list, num_points=300):
+    """Given a list of orbit objects, plot them on the screen"""
+
+    """
+    # get max in the list
+    # find dividing factor that reduced it to the width of the screen (divided by 2)
+    r_max = max([abs(elem[0]) for elem in r_list])
+    factor = r_max / (WIDTH / 2)
+
+    # graph each point
+    for i in range(len(xy_point_list)):
+        current_x_coord = int((xy_point_list[i][0] / factor) + WIDTH / 2)
+        current_y_coord = int((xy_point_list[i][1] / factor) + HEIGHT / 2)
+        # plot point
+        surface.set_at((current_x_coord, current_y_coord), WHITE)
+    """
+
+    max_radius = get_max_radius(orbit_list)
+
+    # calculate scaling factor based on the max orbit
+    factor = max_radius / (WIDTH / 2)
+
+    # plot each trajectory, scaling w.r.t. the factor
+    for orbit in orbit_list:
+        curr_points_list = orbit.get_orbit(num_points)
+        for point in curr_points_list:
+            x = int((point[0] / factor) + WIDTH / 2)
+            y = int((point[1] / factor) + WIDTH / 2)
+            surface.set_at((x, y), WHITE)
 
 """HELPER FUNCTIONS FOR SCALING ORBITS TO FIT THE SCREEN"""
 
@@ -121,14 +140,21 @@ def get_key_with_max_value(orbit_dict):
     max_key = max(orbit_dict.keys(), key=orbit_dict.get) # same as passing in orbit_dict.keys()
     return max_key
 
-def get_orbit_with_max_radius(orbit_objs: list[OrbitGrapher]):
-    """Returns the orbit that has the max radius given a list of OrbitGrapher objects"""
+def get_max_radius(orbit_objs: list[Orbit]):
+    """Returns the max radius given a list of Orbit objects"""
+    radius_list = []
+    for orbit in orbit_objs:
+        radius_list.append(orbit.r_orbit(0))  # radius at 0 phi
+    return max(radius_list)
+
+def get_orbit_with_max_radius(orbit_objs: list[Orbit]):
+    """Returns the orbit that has the max radius given a list of Orbit objects"""
     orbit_dict = {}
     for orbit in orbit_objs:
         orbit_dict[orbit] = orbit.r_orbit(0) # radius at 0 phi
     return get_key_with_max_value(orbit_dict)
 
-def get_orbit_type(orbit_obj: OrbitGrapher) -> str:
+def get_orbit_type(orbit_obj: Orbit) -> str:
     if orbit_obj.EPSILON == 0:
         return "CIRCLE"
     elif (0 < orbit_obj.EPSILON < 1) or (0 > orbit_obj.EPSILON > -1):
@@ -141,12 +167,13 @@ def get_orbit_type(orbit_obj: OrbitGrapher) -> str:
 """MAIN LOOP FOR DRAWING ORBITS AND UPDATING"""
 
 def game_loop():
-    hyperbola = OrbitGrapher(epsilon=1.5)  # hyperbola
-    hyperbola.graph_orbit()
-    hyperbola_steep = OrbitGrapher(epsilon=1.9)  # hyperbola, steeper
-    hyperbola_steep.graph_orbit()
-    circle = OrbitGrapher(epsilon=0, l=10**24)  # circle
-    circle.graph_orbit()
+    parabola = Orbit(epsilon=1)  # parabola
+    hyperbola = Orbit(epsilon=1.9)  # hyperbola
+    circle = Orbit(epsilon=0)  # circle
+    circle_small = Orbit(epsilon=0, l=0.8*10**24)  # small circle
+    orbits = [parabola, hyperbola, circle, circle_small]
+
+    graph_orbits(orbits)
 
     while True:
         pygame.display.update()
@@ -155,16 +182,11 @@ def game_loop():
                 pygame.quit()
 
 """NOTES: 
-- Issue: graphing
-- circles are all scaled to be the same size
-- this has to do with the screen width scaling
 
-- create helper method to: 
-    - get all the orbits and their parameters
-    - calculate their radii
-    - scale the circles so that the largest circle takes up a reasonable amount of screen
-    - create a factor so that the other orbits are relatively sized
+ISSUE
+- scaling breaks when negative epsilon is used
+- should be an easy fix, but it is not necessary 
 
-- this method should run before pygame.display.update
-- somehow, the scaling portion of OrbitGrapher should be modified to take this into account? (not sure how) 
+FUTURE
+- short-term goal: animate a satellite following the trajectory of the orbit (1 point per frame, display velocity) 
 """
