@@ -55,7 +55,11 @@ class Orbit:
         self.C = self.L**2 / (self.GAMMA * self.MU)
 
     def r_orbit(self, phi):
-        return self.C/(1 + self.EPSILON * np.cos(phi))
+        denominator = 1 + self.EPSILON * np.cos(phi)
+        if denominator == 0: # case: negative EPSILON = -1 for the negative parabola
+            return WIDTH
+        r = self.C/(1 + self.EPSILON * np.cos(phi))
+        return r
 
     def energy(self):
         return self.GAMMA ** 2 * self.MU * (self.EPSILON ** 2 - 1) / 2 * self.L ** 2
@@ -106,20 +110,6 @@ class Orbit:
 def graph_orbits(orbit_list, num_points=300):
     """Given a list of orbit objects, plot them on the screen"""
 
-    """
-    # get max in the list
-    # find dividing factor that reduced it to the width of the screen (divided by 2)
-    r_max = max([abs(elem[0]) for elem in r_list])
-    factor = r_max / (WIDTH / 2)
-
-    # graph each point
-    for i in range(len(xy_point_list)):
-        current_x_coord = int((xy_point_list[i][0] / factor) + WIDTH / 2)
-        current_y_coord = int((xy_point_list[i][1] / factor) + HEIGHT / 2)
-        # plot point
-        surface.set_at((current_x_coord, current_y_coord), WHITE)
-    """
-
     max_radius = get_max_radius(orbit_list)
 
     # calculate scaling factor based on the max orbit
@@ -144,7 +134,7 @@ def get_max_radius(orbit_objs: list[Orbit]):
     """Returns the max radius given a list of Orbit objects"""
     radius_list = []
     for orbit in orbit_objs:
-        radius_list.append(orbit.r_orbit(0))  # radius at 0 phi
+        radius_list.append(abs(orbit.r_orbit(0)))  # radius at 0 phi
     return max(radius_list)
 
 def get_orbit_with_max_radius(orbit_objs: list[Orbit]):
@@ -168,11 +158,13 @@ def get_orbit_type(orbit_obj: Orbit) -> str:
 
 def game_loop():
     parabola = Orbit(epsilon=1)  # parabola
+    parabola_neg = Orbit(epsilon=-1)  # parabola negative
     hyperbola = Orbit(epsilon=1.9)  # hyperbola
+    hyperbola_neg = Orbit(epsilon=-1.9)  # hyperbola negative
     circle = Orbit(epsilon=0)  # circle
     circle_small = Orbit(epsilon=0, l=0.8*10**24)  # small circle
-    orbits = [parabola, hyperbola, circle, circle_small]
 
+    orbits = [parabola, parabola_neg, hyperbola, hyperbola_neg, circle, circle_small]
     graph_orbits(orbits)
 
     while True:
