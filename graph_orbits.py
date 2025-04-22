@@ -80,10 +80,10 @@ class OrbitGrapher:
         # if hyperbola or parabola (EPSILON = 1 or "..." > 1), shave off (default 10%) the longer r values
         end_percent_index = int(len(r_list) - len(r_list) * percent)
 
-        if self.EPSILON == 1:
+        if self.EPSILON == 1 or self.EPSILON == -1:
             r_list.sort(key=lambda l:l[0]) # sort by the first value (r)
             r_list = r_list[:end_percent_index]
-        elif self.EPSILON > 1:
+        elif self.EPSILON > 1 or self.EPSILON < -1:
             r_list.sort(key=lambda l:abs(l[0])) # sort by the abs. value of first value (r)
             r_list = r_list[:end_percent_index]
 
@@ -118,7 +118,7 @@ class OrbitGrapher:
 
 def get_key_with_max_value(orbit_dict):
     """Gets the key with the max value in a dictionary"""
-    max_key = max(orbit_dict, key=orbit_dict.get()) # same as passing in orbit_dict.keys()
+    max_key = max(orbit_dict.keys(), key=orbit_dict.get) # same as passing in orbit_dict.keys()
     return max_key
 
 def get_orbit_with_max_radius(orbit_objs: list[OrbitGrapher]):
@@ -127,6 +127,16 @@ def get_orbit_with_max_radius(orbit_objs: list[OrbitGrapher]):
     for orbit in orbit_objs:
         orbit_dict[orbit] = orbit.r_orbit(0) # radius at 0 phi
     return get_key_with_max_value(orbit_dict)
+
+def get_orbit_type(orbit_obj: OrbitGrapher) -> str:
+    if orbit_obj.EPSILON == 0:
+        return "CIRCLE"
+    elif (0 < orbit_obj.EPSILON < 1) or (0 > orbit_obj.EPSILON > -1):
+        return "ELLIPSE"
+    elif orbit_obj.EPSILON == 1 or orbit_obj.EPSILON == -1:
+        return "PARABOLA"
+    else:
+        return "HYPERBOLA"
 
 """MAIN LOOP FOR DRAWING ORBITS AND UPDATING"""
 
