@@ -21,7 +21,7 @@ Key: eccentricity determines the orbit's shape:
 - epsilon > 1     -- E > 0 -- hyperbola
 
 """
-from graph_orbits import game_loop
+from game_loop import game_loop
 
 if __name__ == '__main__':
     game_loop()
