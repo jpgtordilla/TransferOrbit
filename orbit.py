@@ -96,3 +96,19 @@ def get_orbit_type(orbit_obj: Orbit) -> str:
         return "PARABOLA"
     else:
         return "HYPERBOLA"
+
+def graph_orbits(orbit_list, draw_surface, num_points=300):
+    """Given a list of orbit objects, plot them on the screen"""
+
+    max_radius = get_max_radius(orbit_list)
+
+    # calculate scaling factor based on the max orbit
+    factor = max_radius / (WIDTH / 2)
+
+    # plot each trajectory, scaling w.r.t. the factor
+    for orbit in orbit_list:
+        curr_points_list = orbit.get_orbit(num_points)
+        for point in curr_points_list:
+            x = int((point[0] / factor) + WIDTH / 2)
+            y = int((point[1] / factor) + WIDTH / 2)
+            draw_surface.set_at((x, y), WHITE)

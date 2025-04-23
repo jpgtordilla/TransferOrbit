@@ -2,6 +2,7 @@
 1. https://inventwithpython.com/pygameHelloWorld.py
 2. Taylor, John R. Classical Mechanics. University Science Books, 2005.
 """
+from satellite import Satellite
 
 """THEORY
 (Taylor, John R. Classical Mechanics. University Science Books, 2005.)
@@ -27,30 +28,13 @@ Key: eccentricity determines the orbit's shape:
 - epsilon > 1     -- E > 0 -- hyperbola
 
 """
-from constants import *
 import pygame
 from pygame.locals import *
-from orbit import Orbit, get_max_radius
+from orbit import *
 
 pygame.init()
 surface = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption("Orbit Graph")
-
-def graph_orbits(orbit_list, num_points=300):
-    """Given a list of orbit objects, plot them on the screen"""
-
-    max_radius = get_max_radius(orbit_list)
-
-    # calculate scaling factor based on the max orbit
-    factor = max_radius / (WIDTH / 2)
-
-    # plot each trajectory, scaling w.r.t. the factor
-    for orbit in orbit_list:
-        curr_points_list = orbit.get_orbit(num_points)
-        for point in curr_points_list:
-            x = int((point[0] / factor) + WIDTH / 2)
-            y = int((point[1] / factor) + WIDTH / 2)
-            surface.set_at((x, y), WHITE)
 
 """MAIN LOOP FOR DRAWING ORBITS AND UPDATING"""
 
@@ -67,11 +51,15 @@ def game_loop():
     circle_small = Orbit(epsilon=0, l=0.8*10**24)  # small circle
 
     orbits = [circle, circle_small]
-    graph_orbits(orbits)
+    graph_orbits(orbits, surface)
+
+    # satellite test
+    sat = Satellite(circle)
 
     clock = pygame.time.Clock() # for frame rate
     while not esc:
         clock.tick(FPS)
+        sat.draw_satellite(surface)
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == QUIT:
