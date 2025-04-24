@@ -19,11 +19,6 @@ class Orbit:
     def set_epsilon(self, new_epsilon):
         self.EPSILON = new_epsilon
 
-    def update_epsilon(self, increase):
-        """Temporary method prior to adding slider"""
-        # NOTE: max for circle/ellipse is 1, max for parabola/hyperbola is 2
-        self.set_epsilon(self.get_epsilon() + increase)
-
     def r_orbit(self, phi):
         denominator = 1 + self.EPSILON * np.cos(phi)
         if denominator == 0: # case: negative EPSILON = -1 for the negative parabola
