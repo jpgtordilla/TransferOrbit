@@ -16,7 +16,7 @@ class Satellite:
         self.image.set_colorkey(BLACK)
         self.sat_rect = pg.Rect(self.get_x_coord(), self.get_y_coord(), self.width, self.width)
 
-        self.orbit_points : list[list[float]] = self.orbit.get_orbit()
+        self.orbit_points : list[list[float]] = self.orbit.get_orbit_points()
         self.current_index = 0 # track which orbit coordinate to use in the update method
 
     def translate_coord_x(self, x_unscaled):
@@ -39,14 +39,17 @@ class Satellite:
     def get_y_coord(self):
         return self.y
 
+    def get_orbit(self):
+        return self.orbit
+
     def set_orbit(self, new_orbit):
         """Set to a new orbit, as well as set orbit points, such as when transfer occurs"""
         self.orbit = new_orbit
-        self.orbit_points = new_orbit.get_orbit()
+        self.orbit_points = new_orbit.get_orbit_points()
 
     def get_orbit_points(self):
         """Returns the xy pairs for the current orbit"""
-        return self.orbit.get_orbit() # xy pairs for the orbit
+        return self.get_orbit().get_orbit_points() # xy pairs for the orbit
 
     def draw_satellite(self, draw_surface):
         if self.get_y_coord() < GUI_Y - self.height:

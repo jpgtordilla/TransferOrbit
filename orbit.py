@@ -13,23 +13,35 @@ class Orbit:
         self.EPSILON = epsilon # eccentricity
         self.C = self.L**2 / (self.GAMMA * self.MU)
 
+    def get_l(self):
+        return self.L
+
+    def set_l(self, new_l):
+        self.L = new_l
+
     def get_epsilon(self):
         return self.EPSILON
 
     def set_epsilon(self, new_epsilon):
         self.EPSILON = new_epsilon
 
+    def get_c(self):
+        return self.C
+
+    def set_c(self, new_c):
+        self.C = new_c
+
     def r_orbit(self, phi):
-        denominator = 1 + self.EPSILON * np.cos(phi)
+        denominator = 1 + self.get_epsilon() * np.cos(phi)
         if denominator == 0: # case: negative EPSILON = -1 for the negative parabola
             return WIDTH
-        r = self.C/(1 + self.EPSILON * np.cos(phi))
+        r = self.get_c()/(1 + self.get_epsilon() * np.cos(phi))
         return r
 
     def energy(self):
-        return self.GAMMA ** 2 * self.MU * (self.EPSILON ** 2 - 1) / 2 * self.L ** 2
+        return self.GAMMA ** 2 * self.MU * (self.get_epsilon() ** 2 - 1) / 2 * self.L ** 2
 
-    def get_orbit(self, num_points=300, percent=0.1) -> list[list[float]]:
+    def get_orbit_points(self, num_points=300) -> list[list[float]]:
         """Returns a list of (x, y) pairs for a given orbit"""
         # graph orbit
         # - for (default=360) equally spaced points, calculate r and add to 2D list
@@ -47,7 +59,7 @@ class Orbit:
             r_list.append([current_r, current_phi])
 
         # delete last element of the parabola since it represents the foci
-        if self.EPSILON == 1 or self.EPSILON == -1:
+        if self.get_epsilon() == 1 or self.get_epsilon() == -1:
             r_list = r_list[:int(len(r_list) / 2) - 1] + r_list[int(len(r_list) / 2):]
 
         for i in range(len(r_list)):
