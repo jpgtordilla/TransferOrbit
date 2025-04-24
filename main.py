@@ -21,10 +21,11 @@ Key: eccentricity determines the orbit's shape:
 - epsilon > 1     -- E > 0 -- hyperbola
 
 """
-from game_loop import game_loop
+from game_loop import *
 
 if __name__ == '__main__':
-    game_loop()
+    game = Game()
+    game.game_loop()
 
 """NOTES: 
 - fix flickering and make it possible to draw multiple on the same window

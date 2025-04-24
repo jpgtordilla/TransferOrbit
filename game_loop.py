@@ -38,30 +38,52 @@ pygame.display.set_caption("Orbit Graph")
 
 """MAIN LOOP FOR DRAWING ORBITS AND UPDATING"""
 
-def game_loop():
-    """
-    parabola = Orbit(epsilon=1)  # parabola
-    parabola_neg = Orbit(epsilon=-1)  # parabola negative
-    hyperbola = Orbit(epsilon=1.9)  # hyperbola
-    hyperbola_neg = Orbit(epsilon=-1.9)  # hyperbola negative
-    """
-    esc = False # escape set to false until window is closed
+class Game:
+    def __init__(self):
+        self.factor = 1 # set default factor
 
-    circle = Orbit(epsilon=0)  # circle
-    circle_small = Orbit(epsilon=0, l=0.8*10**24)  # small circle
+    def graph_orbits(self, orbit_list, draw_surface, num_points=300):
+        """Given a list of orbit objects, plot them on the screen"""
 
-    orbits = [circle, circle_small]
-    graph_orbits(orbits, surface)
+        max_radius = get_max_radius(orbit_list)
 
-    # satellite test
-    sat = Satellite(circle)
+        # calculate scaling factor based on the max orbit
+        self.factor = max_radius / (WIDTH / SCALING_CONST) # slightly more than 2 so that there are margins
 
-    clock = pygame.time.Clock() # for frame rate
-    while not esc:
-        clock.tick(FPS)
-        sat.draw_satellite(surface)
-        pygame.display.update()
-        for event in pygame.event.get():
-            if event.type == QUIT:
-                esc = True
-                pygame.quit()
+        # plot each trajectory, scaling w.r.t. the factor
+        for orbit in orbit_list:
+            curr_points_list = orbit.get_orbit(num_points)
+            for point in curr_points_list:
+                x = int((point[0] / self.factor) + WIDTH / 2)
+                y = int((point[1] / self.factor) + WIDTH / 2)
+                draw_surface.set_at((x, y), WHITE)
+
+    def game_loop(self):
+        """
+        parabola = Orbit(epsilon=1)  # parabola
+        parabola_neg = Orbit(epsilon=-1)  # parabola negative
+        hyperbola = Orbit(epsilon=1.9)  # hyperbola
+        hyperbola_neg = Orbit(epsilon=-1.9)  # hyperbola negative
+        """
+        esc = False # escape set to false until window is closed
+
+        circle = Orbit(epsilon=0)  # circle
+        circle_small = Orbit(epsilon=0, l=0.8*10**24)  # small circle
+
+        orbits = [circle, circle_small]
+        self.graph_orbits(orbits, surface)
+
+        # satellite test
+        sat = Satellite(circle, self.factor)
+
+        clock = pygame.time.Clock() # for frame rate
+        while not esc:
+            clock.tick(FPS)
+            sat.draw_satellite(surface)
+            pygame.display.update()
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    esc = True
+                    pygame.quit()
+
+            sat.update_satellite()
