@@ -73,17 +73,28 @@ class Game:
         orbits = [circle, circle_small]
         self.graph_orbits(orbits, surface)
 
-        # satellite test
         sat = Satellite(circle, self.factor)
+        sat_small = Satellite(circle_small, self.factor)
 
         clock = pygame.time.Clock() # for frame rate
         while not esc:
             clock.tick(FPS)
-            sat.draw_satellite(surface)
+
+            surface.fill(BLACK) # wipe screen
+            self.graph_orbits(orbits, surface) # redraw orbit
+            sat.draw_satellite(surface) # draw satellite
+            sat_small.draw_satellite(surface)  # draw satellite
+
             pygame.display.update()
+
             for event in pygame.event.get():
                 if event.type == QUIT:
                     esc = True
                     pygame.quit()
 
-            sat.update_satellite()
+            sat.update_satellite() # update satellite position
+            sat_small.update_satellite()  # update satellite position
+
+"""ISSUES: 
+- for parabolic and hyperbolic orbits, satellite flickers between points 
+"""

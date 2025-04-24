@@ -14,7 +14,7 @@ class Satellite:
 
         self.image = pg.transform.scale(pg.image.load("sat-sprite.jpg").convert(), (self.width, self.height))
         self.image.set_colorkey(BLACK)
-        self.sat_rect = pg.Rect(self.x, self.y, self.width, self.width)
+        self.sat_rect = pg.Rect(self.get_x_coord(), self.get_y_coord(), self.width, self.width)
 
         self.orbit_points : list[list[float]] = self.orbit.get_orbit()
         self.current_index = 0 # track which orbit coordinate to use in the update method
@@ -33,6 +33,12 @@ class Satellite:
     def set_y_coord(self, y_unscaled):
         self.y = self.translate_coord_y(y_unscaled)
 
+    def get_x_coord(self):
+        return self.x
+
+    def get_y_coord(self):
+        return self.y
+
     def set_orbit(self, new_orbit):
         """Set to a new orbit, as well as set orbit points, such as when transfer occurs"""
         self.orbit = new_orbit
@@ -50,7 +56,7 @@ class Satellite:
 
     def set_orbit_index(self):
         """Increment the current orbit index"""
-        if self.current_index < len(self.orbit_points):
+        if self.current_index < len(self.orbit_points) - 1:
             self.current_index += 1
         else:
             self.current_index = 0
@@ -58,10 +64,7 @@ class Satellite:
     def update_satellite(self):
         """update the satellite position based on the orbit position array"""
         self.set_orbit_index()
-        self.x = self.get_orbit_points()[self.get_orbit_index()][0]
-        self.y = self.get_orbit_points()[self.get_orbit_index()][1]
-
-"""ISSUES:
-- x is updating but the satellite graphic is not moving
-"""
+        self.set_x_coord(self.get_orbit_points()[self.get_orbit_index()][0])
+        self.set_y_coord(self.get_orbit_points()[self.get_orbit_index()][1])
+        self.sat_rect = pg.Rect(self.get_x_coord(), self.get_y_coord(), self.width, self.width)
 
