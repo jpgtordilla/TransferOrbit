@@ -25,7 +25,7 @@ class Satellite:
 
     def translate_coord_y(self, y_unscaled):
         """Converts the unscaled y coordinate in meters to a pixel value"""
-        return int((y_unscaled / self.factor) + HEIGHT / 2) - self.height / 2
+        return int((y_unscaled / self.factor) + HEIGHT / (2 + HEIGHT_SCALE)) - self.height / 2
 
     def set_x_coord(self, x_unscaled):
         self.x = self.translate_coord_x(x_unscaled)
@@ -49,7 +49,8 @@ class Satellite:
         return self.orbit.get_orbit() # xy pairs for the orbit
 
     def draw_satellite(self, draw_surface):
-        draw_surface.blit(self.image, self.sat_rect)
+        if self.get_y_coord() < GUI_Y - self.height:
+            draw_surface.blit(self.image, self.sat_rect)
 
     def get_orbit_index(self):
         return self.current_index

@@ -42,7 +42,7 @@ class Game:
     def __init__(self):
         self.factor = 1 # set default factor
 
-    def graph_orbits(self, orbit_list, draw_surface, num_points=300):
+    def graph_orbits(self, orbit_list, draw_surface, num_points=300, visible=True):
         """Given a list of orbit objects, plot them on the screen"""
 
         max_radius = get_max_radius(orbit_list)
@@ -55,8 +55,9 @@ class Game:
             curr_points_list = orbit.get_orbit(num_points)
             for point in curr_points_list:
                 x = int((point[0] / self.factor) + WIDTH / 2)
-                y = int((point[1] / self.factor) + WIDTH / 2)
-                draw_surface.set_at((x, y), WHITE)
+                y = int((point[1] / self.factor) + HEIGHT / 2.5)
+                if visible and y < GUI_Y:
+                    draw_surface.set_at((x, y), WHITE)
 
     def game_loop(self):
         """
@@ -67,34 +68,47 @@ class Game:
         """
         esc = False # escape set to false until window is closed
 
+        parabola = Orbit(epsilon=1, l=0.8*10**24)  # parabola
         circle = Orbit(epsilon=0)  # circle
-        circle_small = Orbit(epsilon=0, l=0.8*10**24)  # small circle
+        hyperbola = Orbit(epsilon=1.5, l=0.8 * 10 ** 24)  # hyperbola
+        ellipse = Orbit(epsilon=0.3)  # ellipse
 
-        orbits = [circle, circle_small]
-        self.graph_orbits(orbits, surface)
+        orbits = [circle, parabola, hyperbola, ellipse]
+        self.graph_orbits(orbits, surface, visible=False)
 
-        sat = Satellite(circle, self.factor)
-        sat_small = Satellite(circle_small, self.factor)
+        sat_circle = Satellite(circle, self.factor)
+        sat_parabola = Satellite(parabola, self.factor)
+        sat_hyperbola = Satellite(hyperbola, self.factor)
+        sat_ellipse = Satellite(ellipse, self.factor)
+
+        surface.fill(BLUE)
 
         clock = pygame.time.Clock() # for frame rate
         while not esc:
             clock.tick(FPS)
 
-            surface.fill(BLACK) # wipe screen
+            pygame.draw.rect(surface, BLACK,(0, 0, WIDTH, GUI_Y))
+
             self.graph_orbits(orbits, surface) # redraw orbit
-            sat.draw_satellite(surface) # draw satellite
-            sat_small.draw_satellite(surface)  # draw satellite
+
+            sat_circle.draw_satellite(surface) # draw satellite
+            sat_parabola.draw_satellite(surface)  # draw satellite
+            sat_hyperbola.draw_satellite(surface)  # draw satellite
+            sat_ellipse.draw_satellite(surface)  # draw satellite
 
             pygame.display.update()
 
-            for event in pygame.event.get():
+            events = pygame.event.get()
+            for event in events:
                 if event.type == QUIT:
                     esc = True
                     pygame.quit()
 
-            sat.update_satellite() # update satellite position
-            sat_small.update_satellite()  # update satellite position
+            sat_circle.update_satellite() # update satellite position
+            sat_parabola.update_satellite()  # update satellite position
+            sat_hyperbola.update_satellite()  # update satellite position
+            sat_ellipse.update_satellite()  # update satellite position
 
-"""ISSUES: 
-- for parabolic and hyperbolic orbits, satellite flickers between points 
+"""TODO: 
+- create slider to change epsilon between specific values (orbit.py update_epsilon)
 """

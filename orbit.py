@@ -13,6 +13,17 @@ class Orbit:
         self.EPSILON = epsilon # eccentricity
         self.C = self.L**2 / (self.GAMMA * self.MU)
 
+    def get_epsilon(self):
+        return self.EPSILON
+
+    def set_epsilon(self, new_epsilon):
+        self.EPSILON = new_epsilon
+
+    def update_epsilon(self, increase):
+        """Temporary method prior to adding slider"""
+        # NOTE: max for circle/ellipse is 1, max for parabola/hyperbola is 2
+        self.set_epsilon(self.get_epsilon() + increase)
+
     def r_orbit(self, phi):
         denominator = 1 + self.EPSILON * np.cos(phi)
         if denominator == 0: # case: negative EPSILON = -1 for the negative parabola
@@ -40,15 +51,9 @@ class Orbit:
             current_r = self.r_orbit(current_phi)
             r_list.append([current_r, current_phi])
 
-        # if hyperbola or parabola (EPSILON = 1 or "..." > 1), shave off (default 10%) the longer r values
-        end_percent_index = int(len(r_list) - len(r_list) * percent)
-
+        # delete last element of the parabola since it represents the foci
         if self.EPSILON == 1 or self.EPSILON == -1:
-            r_list.sort(key=lambda l:l[0]) # sort by the first value (r)
-            r_list = r_list[:end_percent_index]
-        elif self.EPSILON > 1 or self.EPSILON < -1:
-            r_list.sort(key=lambda l:abs(l[0])) # sort by the abs. value of first value (r)
-            r_list = r_list[:end_percent_index]
+            r_list = r_list[:int(len(r_list) / 2) - 1] + r_list[int(len(r_list) / 2):]
 
         for i in range(len(r_list)):
             current_r = r_list[i][0]
